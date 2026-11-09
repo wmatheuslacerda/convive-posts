@@ -1,0 +1,47 @@
+name: Vídeo do dia
+
+# Todo dia às 18h (Brasília) publica o próximo vídeo pronto de videos/fila/ como Reels.
+on:
+  schedule:
+    - cron: "0 21 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: publicar
+  cancel-in-progress: false
+
+jobs:
+  video:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Configurar git
+        run: |
+          git config user.name "convive-bot"
+          git config user.email "convive-bot@users.noreply.github.com"
+      - name: Separar o vídeo do dia
+        run: |
+          python scripts/video_do_dia.py
+          git add -A videos posts
+          if git diff --cached --quiet; then echo "nada a publicar"; exit 0; fi
+          git commit -m "Vídeo do dia na fila"
+          git push
+          sleep 10  # o raw.githubusercontent precisa enxergar o vídeo antes do Instagram buscar
+      - name: Publicar
+        env:
+          IG_TOKEN: ${{ secrets.IG_TOKEN }}
+          IG_USER_ID: ${{ secrets.IG_USER_ID }}
+        run: python scripts/publicar.py
+      - name: Registrar publicado
+        if: always()
+        run: |
+          git add -A posts
+          git diff --cached --quiet || git commit -m "Publicados no Instagram"
+          git pull --rebase -q || true
+          git push
