@@ -143,8 +143,8 @@ def gerar(saida, dados):
         miolo = saida.with_name(saida.stem + "-miolo.mp4")
         saida.replace(miolo)
         subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", str(abertura), "-i", str(miolo), "-filter_complex",
-                        "[0:v]settb=AVTB,fps=30[a];[1:v]settb=AVTB,fps=30[b];[a][b]xfade=transition=circleopen:duration=0.6:offset=6.0,format=yuv420p[v]",
-                        "-map", "[v]", "-c:v", "libx264", "-crf", "18", "-movflags", "+faststart", str(saida)], check=True)
+                        "[0:v]settb=AVTB,fps=30[a];[1:v]settb=AVTB,fps=30[b];[a][b]xfade=transition=circleopen:duration=0.6:offset=6.0,format=yuv420p[v];[0:a]apad[au]",
+                        "-map", "[v]", "-map", "[au]", "-shortest", "-c:a", "aac", "-c:v", "libx264", "-crf", "18", "-movflags", "+faststart", str(saida)], check=True)
         miolo.unlink()
         total += 6.0
     return total

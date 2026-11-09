@@ -87,14 +87,14 @@ def main():
             mudou = True
             continue
         dv, da = duracao(video), duracao(audio)
-        extra = max(0.0, da + 0.6 - dv)  # voz + respiro no fim
+        extra = max(0.0, da + 6.7 + 0.6 - dv)  # voz + respiro no fim
         final = video.with_name(video.stem + "_final.mp4")
         filtro_v = f"tpad=stop_mode=clone:stop_duration={extra:.2f}" if extra > 0 else "null"
         subprocess.run([
             "ffmpeg", "-y", "-loglevel", "error", "-i", str(video), "-i", str(audio),
             "-filter_complex",
-            f"[0:v]{filtro_v}[v];[1:a]adelay=250|250,loudnorm=I=-14:TP=-1.5:LRA=11,apad[a]",
-            "-map", "[v]", "-map", "[a]", "-t", f"{max(dv, da + 0.85):.2f}",
+            f"[0:v]{filtro_v}[v];[1:a]adelay=6700|6700,loudnorm=I=-14:TP=-1.5:LRA=11,apad[n];[0:a]volume=0.9[j];[j][n]amix=inputs=2:duration=longest:normalize=0[a]",
+            "-map", "[v]", "-map", "[a]", "-t", f"{max(dv, da + 6.7 + 0.85):.2f}",
             "-c:v", "libx264", "-preset", "medium", "-crf", "18", "-pix_fmt", "yuv420p",
             "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-movflags", "+faststart", str(final)],
             check=True)
