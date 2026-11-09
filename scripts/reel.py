@@ -58,7 +58,7 @@ def montar_pagina(dados):
         f'<section class="cena final" style="background:{AMARELO};color:{PRETO}"><div class="cam">'
         f'<div class="logo"><div class="mask"><div class="ln" data-i="0">convive</div></div></div>'
         f'<div class="ass"><div class="mask"><div class="ln" data-i="1">{assinatura}</div></div></div>'
-        f'<div class="cta"><div class="mask"><div class="ln" data-i="2"><b>{chamada} ↑</b></div></div></div>'
+        f'<div class="cta"><div class="mask"><div class="ln" data-i="2"><b>{chamada}</b></div></div></div>'
         f'</div></section>'
     )
     durs = [float(c.get("dur", 2.4)) for c in cenas] + [DUR_FINAL]
@@ -137,6 +137,16 @@ def gerar(saida, dados):
         nav.close()
     if ff.returncode != 0:
         raise SystemExit("ffmpeg falhou")
+    # todo motion da Convive abre com a abertura do site (assets/abertura.mp4, gerada por abertura.py no convive-motion)
+    abertura = Path(__file__).resolve().parent.parent / "assets" / "abertura.mp4"
+    if abertura.exists():
+        miolo = saida.with_name(saida.stem + "-miolo.mp4")
+        saida.replace(miolo)
+        subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", str(abertura), "-i", str(miolo), "-filter_complex",
+                        "[0:v]settb=AVTB,fps=30[a];[1:v]settb=AVTB,fps=30[b];[a][b]xfade=transition=circleopen:duration=0.6:offset=6.0,format=yuv420p[v]",
+                        "-map", "[v]", "-c:v", "libx264", "-crf", "18", "-movflags", "+faststart", str(saida)], check=True)
+        miolo.unlink()
+        total += 6.0
     return total
 
 

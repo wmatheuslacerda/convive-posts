@@ -158,7 +158,7 @@ def gerar(saida, dados):
             f"background:{cor_cta_fundo};color:{cor_cta_texto};display:flex;align-items:center;"
             "justify-content:center;gap:18px;font-family:Inter;font-weight:900;font-size:34px;"
             "letter-spacing:1px;text-transform:uppercase}</style>"
-            f"<div class='palco'>{corpo}</div><div class='cta'>{chamada} <span>↑</span></div>"
+            f"<div class='palco'>{corpo}</div><div class='cta'>{chamada}</div>"
         )
     pagina = f"<!doctype html><html><head><meta charset='utf-8'><style>{css_base()}</style></head><body>{corpo}<div class='grao'></div></body></html>"
     if story:
