@@ -40,8 +40,8 @@ def escolher_voz(post):
     return vozes[0]["voice_id"]
 
 
-# Pronúncia da marca: "CongoApp" tem que soar "congoép" (não "congo-app").
-PRONUNCIA = []  # Convive se fala como se escreve
+# Pronúncia da marca: a voz lia "Convive" como a palavra inglesa ("con-vaive"). Com acento ela fala "con-VI-ve" (só na voz; legenda segue "Convive").
+PRONUNCIA = [(re.compile(r"\bconvive\b", re.IGNORECASE), "Convíve")]
 
 
 def pronunciar(texto):
